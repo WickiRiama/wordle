@@ -39,6 +39,7 @@ fn main() {
 
         if keycode == KeyCode::ESCAPE {
             mlx.stop_loop();
+            return;
         }
 
         match keycode {

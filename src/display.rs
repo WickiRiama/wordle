@@ -17,7 +17,7 @@ pub fn copy_pixel(dst: &Image, dst_x: u32, dst_y: u32, color: u8) {
 
 pub fn draw_square(size: u32, x: u32, y:u32, weight: u32, img: &Image) {
 	for j in 0..weight {
-		for i in 0..size - j * 2 {
+		for i in 0..=size - j * 2 {
 			copy_pixel(img, j + x + i, j + y, 0);
 			copy_pixel(img, j + x, j + y + i, 0);
 			copy_pixel(img, j + x + i, y + size - j, 0);
