@@ -4,8 +4,8 @@ use std::rc::Rc;
 
 use crate::Mlx;
 
-struct Inner<'a> {
-    mlx: Mlx<'a>,
+struct Inner {
+    mlx: Mlx,
     handle: crate::raw::Image,
 
     width: u32,
@@ -16,7 +16,7 @@ struct Inner<'a> {
     data: *mut u8,
 }
 
-impl<'a> Drop for Inner<'a> {
+impl Drop for Inner {
     fn drop(&mut self) {
         unsafe {
             crate::raw::mlx_destroy_image(self.mlx.as_raw(), self.handle);
@@ -30,10 +30,10 @@ pub struct ImageError;
 
 /// A loaded image.
 #[derive(Clone)]
-pub struct Image<'a>(Rc<Inner<'a>>);
+pub struct Image(Rc<Inner>);
 
-impl<'a> Image<'a> {
-    pub(crate) fn create(mlx: Mlx<'a>, width: u32, height: u32) -> Result<Self, ImageError> {
+impl Image {
+    pub(crate) fn create(mlx: Mlx, width: u32, height: u32) -> Result<Self, ImageError> {
         let handle =
             unsafe { crate::raw::mlx_new_image(mlx.as_raw(), width as c_int, height as c_int) };
 
@@ -61,7 +61,7 @@ impl<'a> Image<'a> {
         }
     }
 
-    pub(crate) fn create_from_xpm(mlx: Mlx<'a>, xpmdata: &CStr) -> Result<Self, ImageError> {
+    pub(crate) fn create_from_xpm(mlx: Mlx, xpmdata: &CStr) -> Result<Self, ImageError> {
         let mut width = 0;
         let mut height = 0;
 
@@ -93,7 +93,7 @@ impl<'a> Image<'a> {
         }
     }
 
-    pub(crate) fn create_from_xpm_file(mlx: Mlx<'a>, filename: &CStr) -> Result<Self, ImageError> {
+    pub(crate) fn create_from_xpm_file(mlx: Mlx, filename: &CStr) -> Result<Self, ImageError> {
         let mut width = 0;
         let mut height = 0;
 
@@ -132,7 +132,7 @@ impl<'a> Image<'a> {
 
     /// Returns a reference to the [`Mlx`] instance associated with this [`Image`].
     #[inline]
-    pub fn mlx(&self) -> &Mlx<'a> {
+    pub fn mlx(&self) -> &Mlx {
         &self.0.mlx
     }
 

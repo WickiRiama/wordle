@@ -6,13 +6,13 @@ use std::rc::Rc;
 use crate::dyn_box::DynBox;
 use crate::{Hook, Image, Mlx};
 
-struct Inner<'mlx, 'hooks> {
-    mlx: Mlx<'mlx>,
+struct Inner {
+    mlx: Mlx,
     handle: crate::raw::Window,
-    hooks: [Cell<Option<DynBox<'hooks>>>; 36],
+    hooks: [Cell<Option<DynBox<'static>>>; 36],
 }
 
-impl<'mlx, 'hooks> Drop for Inner<'mlx, 'hooks> {
+impl Drop for Inner {
     fn drop(&mut self) {
         unsafe {
             crate::raw::mlx_destroy_window(self.mlx.as_raw(), self.handle);
@@ -25,11 +25,11 @@ impl<'mlx, 'hooks> Drop for Inner<'mlx, 'hooks> {
 pub struct WindowError;
 
 #[derive(Clone)]
-pub struct Window<'mlx, 'hooks>(Rc<Inner<'mlx, 'hooks>>);
+pub struct Window(Rc<Inner>);
 
-impl<'mlx, 'hooks> Window<'mlx, 'hooks> {
+impl Window {
     pub(crate) fn create(
-        mlx: Mlx<'mlx>,
+        mlx: Mlx,
         width: u32,
         height: u32,
         title: &CStr,
@@ -66,7 +66,7 @@ impl<'mlx, 'hooks> Window<'mlx, 'hooks> {
 
     /// Returns a reference to the inner `Mlx` instance.
     #[inline]
-    pub fn mlx(&self) -> &Mlx<'mlx> {
+    pub fn mlx(&self) -> &Mlx {
         &self.0.mlx
     }
 
@@ -93,7 +93,7 @@ impl<'mlx, 'hooks> Window<'mlx, 'hooks> {
     /// Hooks a function to listen for a specific event on this window.
     pub fn hook<H, F>(&self, f: F)
     where
-        F: FnMut(H) + 'hooks,
+        F: FnMut(H) + 'static,
         H: Hook,
     {
         let mut b: Box<F> = Box::new(f);

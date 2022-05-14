@@ -47,31 +47,23 @@ fn create_dict() -> Vec<[Letter; 5]> {
         .collect()
 }
 
-fn main() {
-    // Installs a custom panic hook so that error messages are properly displayed on
-    // error.
-    custom_panic::set_custom_panic_hook();
-
-    let game = Rc::new(RefCell::new(Game::new(create_dict())));
-
-    // Initialize MiniLibX and load the images.
-    let mlx = Mlx::init().unwrap_or_else(|_| panic!("Failed to initialize the MiniLibX."));
-    let images = Images::load(&mlx);
-
-    // This image is used to draw on the whole screen.
-    let canvas = mlx.create_image(WIDTH, HEIGHT).unwrap();
-    let win = mlx
-        .create_window(WIDTH, HEIGHT, cstr("Wordle\0"))
-        .unwrap_or_else(|_| panic!("Failed to create a window."));
-
-    let win2 = win.clone();
-    let game2 = game.clone();
-    mlx.hook_loop(move || {
-        draw(&game2.borrow(), &canvas, &images);
-        win2.put_image(&canvas, 0, 0);
+/// Initializes the loop hook to properly draw to the screen.
+fn set_loop_hook(win: &Window, game: &Rc<RefCell<Game>>) {
+    let canvas = win.mlx().create_image(WIDTH, HEIGHT).unwrap();
+    let images = Images::load(win.mlx());
+    
+    let game = game.clone();
+    let win_clone = win.clone();
+    win.mlx().hook_loop(move || {
+        draw(&game.borrow(), &canvas, &images);
+        win_clone.put_image(&canvas, 0, 0);
     });
+}
 
-    let mlx2 = mlx.clone();
+/// Initializes the keyboard hook to properly handle user inputs.
+fn set_key_press_hook(win: &Window, game_ref: &Rc<RefCell<Game>>) {
+    let mlx_clone = win.mlx().clone();
+    let game = game_ref.clone();
     win.hook(move |KeyPress(keycode)| {
         let mut game = game.borrow_mut();
 
@@ -104,15 +96,39 @@ fn main() {
             KeyCode::Z => game.type_letter(Letter::Z),
             KeyCode::BACKSPACE => game.cancel_letter(),
             KeyCode::RETURN => game.confirm_word(),
-            KeyCode::ESCAPE => mlx2.stop_loop(),
+            KeyCode::ESCAPE => mlx_clone.stop_loop(),
             _ => (),
         }
     });
+}
 
-    let mlx3 = mlx.clone();
+/// Initializes the destory hook to properly close the window when
+/// the user requests it.
+fn set_destroy_hook(win: &Window) {
+    let win_clone = win.clone();
     win.hook(move |Destroy| {
-        mlx3.stop_loop();
+        win_clone.mlx().stop_loop();
     });
+}
+
+fn main() {
+    // Installs a custom panic hook so that error messages are properly displayed on
+    // error.
+    custom_panic::set_custom_panic_hook();
+
+    let game = Rc::new(RefCell::new(Game::new(create_dict())));
+
+    // Initialize MiniLibX and load the images.
+    let mlx = Mlx::init().unwrap_or_else(|_| panic!("Failed to initialize the MiniLibX."));
+
+    // This image is used to draw on the whole screen.
+    let win = mlx
+        .create_window(WIDTH, HEIGHT, cstr("Wordle\0"))
+        .unwrap_or_else(|_| panic!("Failed to create a window."));
+
+    set_loop_hook(&win, &game);
+    set_key_press_hook(&win, &game);
+    set_destroy_hook(&win);
 
     mlx.start_loop();
 }
