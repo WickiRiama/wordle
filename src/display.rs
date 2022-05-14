@@ -1,8 +1,8 @@
 use mlx::*;
 
+use crate::Game;
 
-pub fn copy_pixel(dst: &Image, dst_x: u32, dst_y: u32) {
-	unsafe {
+pub fn copy_pixel(dst: &Image, dst_x: u32, dst_y: u32) {	unsafe {
 		let mut start = dst.data().add((dst_y * dst.line_size() + dst_x * dst.bytes_per_pixel()) as usize) ;
 		for _ in 0..dst.bytes_per_pixel() {
 			*start = 255;
@@ -20,4 +20,8 @@ pub fn draw_square(size: u32, x: u32, y:u32, weight: u32, img: &Image) {
 			copy_pixel(img, x + size - j, j + y + i);
 		}
 	}
+}
+
+pub fn draw(game: &Game, output: &Image) {
+	
 }

@@ -1,8 +1,11 @@
 use mlx::*;
 use std::ffi::CStr;
 
-mod square;
-use square::*;
+mod display;
+use display::*;
+
+mod game;
+use game::*;
 
 #[inline]
 fn cstr(s: &str) -> &CStr {
@@ -22,11 +25,11 @@ fn main() {
     let yellow_alpha = mlx.create_image_from_xpm_file( cstr("assets/alphabet_yellow.xpm\0")).unwrap();
     let grey_alpha = mlx.create_image_from_xpm_file(cstr("assets/alphabet_grey.xpm\0")).unwrap();
     draw_square(64, 640, 360, 4, &img);
-    // win.put_image(&black_alpha, 0, 0);
-    // win.put_image(&yellow_alpha, 0, 64);
-    // win.put_image(&green_alpha, 0, 128);
-    // win.put_image(&grey_alpha, 0, 192);
     win.put_image(&img, 0, 0);
+    win.put_image(&black_alpha, 0, 0);
+    win.put_image(&yellow_alpha, 0, 64);
+    win.put_image(&green_alpha, 0, 128);
+    win.put_image(&grey_alpha, 0, 192);
     mlx.hook_loop(move || {});
     let mlx3 = mlx.clone();
     win.hook(move |KeyPress(keycode)| {
