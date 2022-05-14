@@ -1,0 +1,8 @@
+[package]
+name = "wordle"
+version = "0.0.1"
+edition = "2021"
+authors = ["Nils Mathieu <nmathieu@student.42.fr>", "Margaux Riant <mriant@student.42.fr>"]
+
+[workspace]
+members = ["mlx"]
