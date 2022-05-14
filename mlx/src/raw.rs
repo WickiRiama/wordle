@@ -19,7 +19,7 @@ extern "C" {
 	pub fn mlx_clear_window(mlx: Mlx, win: Window) -> c_int;
 	pub fn mlx_pixel_put(mlx: Mlx, win: Window, x: c_int, y: c_int, color: c_int) -> c_int;
 	pub fn mlx_new_image(mlx: Mlx, width: c_int, height: c_int) -> Image;
-	pub fn mlx_get_data_addr(mlx: Mlx, bits_per_pixel: *mut c_int, size_line: *mut c_int, endian: *mut c_int) -> *mut c_char;
+	pub fn mlx_get_data_addr(image: Image, bits_per_pixel: *mut c_int, size_line: *mut c_int, endian: *mut c_int) -> *mut c_char;
 	pub fn mlx_put_image_to_window(mlx: Mlx, win: Window, img: Image, x: c_int, y: c_int) -> c_int;
 	pub fn mlx_get_color_value(mlx: Mlx, color: c_int) -> c_int;
 	pub fn mlx_loop_hook(mlx: Mlx, funct_ptr: unsafe extern "C" fn(param: *mut c_void) -> c_int, param: *mut c_void) -> c_int;
@@ -27,7 +27,7 @@ extern "C" {
 	pub fn mlx_loop_end(mlx: Mlx) -> c_int;
 	pub fn mlx_string_put(mlx: Mlx, win: Window, x: c_int, y: c_int, color: c_int, string: *const c_char) -> c_int;
 	pub fn mlx_set_font(mlx: Mlx, win: Window, name: *const c_char);
-	pub fn mlx_xpm_to_image(mlx: Mlx, win: Window, name: *const c_char) -> Image;
+	pub fn mlx_xpm_to_image(mlx: Mlx, xpmdata: *const c_char, width: *mut c_int, height: *mut c_int) -> Image;
 	pub fn mlx_xpm_file_to_image(mlx: Mlx, filename: *const c_char, width: *mut c_int, height: *mut c_int) -> Image;
 	pub fn mlx_destroy_window(mlx: Mlx, win: Window) -> c_int;
 	pub fn mlx_destroy_image(mlx: Mlx, img: Image) -> c_int;
