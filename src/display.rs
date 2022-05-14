@@ -35,11 +35,11 @@ pub fn copy_pixel(dst: &Image, dst_x: u32, dst_y: u32, mut pixel: *const u8) {
 
 pub fn draw_square(size: u32, x: u32, y: u32, weight: u32, img: &Image) {
     for j in 0..weight {
-        for i in 0..=size - j * 2 {
-            set_pixel(img, j + x + i, j + y, 0);
-            set_pixel(img, j + x, j + y + i, 0);
-            set_pixel(img, j + x + i, y + size - j, 0);
-            set_pixel(img, x + size - j, j + y + i, 0);
+        for i in 0..=size - 1 - j * 2 {
+            set_pixel(img, x + j + i, y + j, 0);
+            set_pixel(img, x + j, y + i - j, 0);
+            set_pixel(img, x + j + i, y -j + size - 1, 0);
+            set_pixel(img, x - j + size - 1, y + j + i, 0);
         }
     }
 }
