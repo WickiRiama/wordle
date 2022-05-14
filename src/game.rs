@@ -1,4 +1,5 @@
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(u8)]
 pub enum Letter {
 	A,
 	B,
@@ -29,6 +30,7 @@ pub enum Letter {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
 pub enum Correctness {
 	Correct,
 	Misplaced,
