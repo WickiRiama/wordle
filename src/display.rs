@@ -93,11 +93,29 @@ pub fn draw_current(word: [Letter; 5], row: u32, cursor: usize, img: &Image, alp
     }
 }
 
+pub fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images: &Images) {
+    let mut x = 30;
+    let y = 30 + row * 64 + row * 10;
+	let mut alphabet: &Image;
+    for i in 0..5 {
+		match word[i].1 {
+			game::Correctness::Correct => alphabet = &images.green_letters,
+			game::Correctness::Misplaced => alphabet = &images.yellow_letters,
+			game::Correctness::Incorrect => alphabet = &images.grey_letters,
+		}
+        draw_letter(word[i].0, x, y, img, alphabet);
+        x = x + 74;
+    }
+}
+
 pub fn draw(game: &Game, output: &Image, images: &Images) {
     init_bg(output);
+	for i in 0..game.current_try{
+		draw_previous(game.previous_words[i], i as u32, output, images);
+	}
     draw_current(
         game.current_word,
-        0,
+        game.current_try as u32,
         game.cursor,
         output,
         &images.black_letters,
