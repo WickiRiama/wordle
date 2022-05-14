@@ -13,6 +13,7 @@ pub type Window = *mut c_void;
 /// The type returned by [`new_image`].
 pub type Image = *mut c_void;
 
+#[rustfmt::skip]
 extern "C" {
 	pub fn mlx_init() -> Mlx;
 	pub fn mlx_new_window(mlx: Mlx, width: c_int, height: c_int, name: *const c_char) -> Window;

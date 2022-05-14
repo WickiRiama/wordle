@@ -34,13 +34,12 @@ fn create_dict() -> Vec<[Letter; 5]> {
                     Letter::from_ascii_char(b),
                     Letter::from_ascii_char(c),
                     Letter::from_ascii_char(d),
-                    Letter::from_ascii_char(e)
-                )
-                {
+                    Letter::from_ascii_char(e),
+                ) {
                     (Some(a), Some(b), Some(c), Some(d), Some(e)) => return [a, b, c, d, e],
-                    _ => {},
+                    _ => {}
                 },
-                _ => {},
+                _ => {}
             }
 
             panic!("Wrong word on line {}: '{}'", i + 1, s.escape_ascii());
@@ -54,15 +53,17 @@ fn main() {
     custom_panic::set_custom_panic_hook();
 
     let game = Rc::new(RefCell::new(Game::new(create_dict())));
-    
+
     // Initialize MiniLibX and load the images.
     let mlx = Mlx::init().unwrap_or_else(|_| panic!("Failed to initialize the MiniLibX."));
     let images = Images::load(&mlx);
 
     // This image is used to draw on the whole screen.
     let canvas = mlx.create_image(WIDTH, HEIGHT).unwrap();
-    let win = mlx.create_window(WIDTH, HEIGHT, cstr("Wordle\0")).unwrap_or_else(|_| panic!("Failed to create a window."));
-    
+    let win = mlx
+        .create_window(WIDTH, HEIGHT, cstr("Wordle\0"))
+        .unwrap_or_else(|_| panic!("Failed to create a window."));
+
     let win2 = win.clone();
     let game2 = game.clone();
     mlx.hook_loop(move || {
