@@ -29,6 +29,40 @@ pub enum Letter {
 	Z,
 }
 
+impl Letter {
+	pub fn from_ascii_char(c: u8) -> Option<Self> {
+		match c.to_ascii_uppercase() {
+			b'A' => Some(Self::A),
+			b'B' => Some(Self::B),
+			b'C' => Some(Self::C),
+			b'D' => Some(Self::D),
+			b'E' => Some(Self::E),
+			b'F' => Some(Self::F),
+			b'G' => Some(Self::G),
+			b'H' => Some(Self::H),
+			b'I' => Some(Self::I),
+			b'J' => Some(Self::J),
+			b'K' => Some(Self::K),
+			b'L' => Some(Self::L),
+			b'M' => Some(Self::M),
+			b'N' => Some(Self::N),
+			b'O' => Some(Self::O),
+			b'P' => Some(Self::P),
+			b'Q' => Some(Self::Q),
+			b'R' => Some(Self::R),
+			b'S' => Some(Self::S),
+			b'T' => Some(Self::T),
+			b'U' => Some(Self::U),
+			b'V' => Some(Self::V),
+			b'W' => Some(Self::W),
+			b'X' => Some(Self::X),
+			b'Y' => Some(Self::Y),
+			b'Z' => Some(Self::Z),
+			_ => None,
+		}
+	}
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum Correctness {

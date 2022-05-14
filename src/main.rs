@@ -22,11 +22,29 @@ fn cstr(s: &str) -> &CStr {
 const WIDTH: u32 = 420;
 const HEIGHT: u32 = 494;
 
+fn create_dict() -> Vec<[Letter; 5]> {
+    std::fs::read("words.txt")
+        .expect("Failed to read 'words.txt'")
+        .split(|c| *c == b'\n')
+        .enumerate()
+        .map(|(i, s)| {
+            match *s {
+                [a, b, c, d, e] => match (Letter::from_ascii_char(a), Letter::from_ascii_char(b), Letter::from_ascii_char(c), Letter::from_ascii_char(d), Letter::from_ascii_char(e)) {
+                    (Some(a), Some(b), Some(c), Some(d), Some(e)) => return [a, b, c, d, e],
+                    _ => {},
+                },
+                _ => {},
+            }
+
+            panic!("Wrong word on line {}: '{}'", i + 1, s.escape_ascii());
+        })
+        .collect()
+}
+
 fn main() {
     // custom_panic::set_custom_panic_hook();
 
-    let game = Rc::new(RefCell::new(Game::new([Letter::A, Letter::B, Letter::C, Letter::D, Letter::E], Vec::new())));
-
+    let game = Rc::new(RefCell::new(Game::new([Letter::A, Letter::B, Letter::C, Letter::D, Letter::E], create_dict())));
     
     let mlx = Mlx::init().expect("Failed to initialize the MiniLibX.");
     mlx.set_autorepeat(false);
