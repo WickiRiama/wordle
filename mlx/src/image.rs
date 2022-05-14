@@ -30,6 +30,7 @@ impl<'a> Drop for Inner<'a> {
 pub struct ImageError;
 
 /// A loaded image.
+#[derive(Clone)]
 pub struct Image<'a>(Rc<Inner<'a>>);
 
 impl<'a> Image<'a> {

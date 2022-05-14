@@ -1,6 +1,7 @@
 use mlx::*;
 use std::cell::RefCell;
 use std::ffi::CStr;
+use std::rc::Rc;
 
 mod display;
 use display::*;
@@ -9,6 +10,9 @@ mod game;
 use game::*;
 
 mod custom_panic;
+
+mod contents;
+use contents::*;
 
 #[inline]
 fn cstr(s: &str) -> &CStr {
@@ -19,26 +23,30 @@ const WIDTH: u32 = 420;
 const HEIGHT: u32 = 494;
 
 fn main() {
-    custom_panic::set_custom_panic_hook();
+    // custom_panic::set_custom_panic_hook();
 
-    let game = RefCell::new(Game::new([Letter::A, Letter::B, Letter::C, Letter::D, Letter::E]));
+    let game = Rc::new(RefCell::new(Game::new([Letter::A, Letter::B, Letter::C, Letter::D, Letter::E], Vec::new())));
 
+    
     let mlx = Mlx::init().expect("Failed to initialize the MiniLibX.");
+    mlx.set_autorepeat(false);
+    let images = Images::load(&mlx);
     let win = mlx.create_window(WIDTH, HEIGHT, cstr("Test\0")).expect("Failed to initialize the window.");
     let img = mlx.create_image(WIDTH, HEIGHT).unwrap();
-    let black_alpha = mlx.create_image_from_xpm_file(cstr("assets/alphabet_black.xpm\0")).unwrap();
-    let green_alpha = mlx.create_image_from_xpm_file(cstr("assets/alphabet_green.xpm\0")).unwrap();
-    let yellow_alpha = mlx.create_image_from_xpm_file(cstr("assets/alphabet_yellow.xpm\0")).unwrap();
-    let grey_alpha = mlx.create_image_from_xpm_file(cstr("assets/alphabet_grey.xpm\0")).unwrap();
-    init_bg(&img);
-    win.put_image(&img, 0, 0);
-    mlx.hook_loop(move || {});
+    
+    let win2 = win.clone();
+    let game2 = game.clone();
+    mlx.hook_loop(move || {
+        draw(&game2.borrow(), &img, &images);
+        win2.put_image(&img, 0, 0);
+    });
 
-    win.hook(|KeyPress(keycode)| {
+    let mlx2 = mlx.clone();
+    win.hook(move |KeyPress(keycode)| {
         let mut game = game.borrow_mut();
 
         if keycode == KeyCode::ESCAPE {
-            mlx.stop_loop();
+            mlx2.stop_loop();
             return;
         }
 
@@ -75,8 +83,9 @@ fn main() {
         }
     });
 
-    win.hook(|Destroy| {
-        mlx.stop_loop();
+    let mlx3 = mlx.clone();
+    win.hook(move |Destroy| {
+        mlx3.stop_loop();
     });
 
     mlx.start_loop();

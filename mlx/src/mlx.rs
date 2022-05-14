@@ -115,4 +115,14 @@ impl<'hook> Mlx<'hook> {
 	pub fn stop_loop(&self) {
 		unsafe { crate::raw::mlx_loop_end(self.as_raw()) };
 	}
+
+	/// Sets whether key presses should be repeated.
+	#[inline]
+	pub fn set_autorepeat(&self, yes: bool) {
+		if yes {
+			unsafe { crate::raw::mlx_do_key_autorepeaton(self.as_raw()) };
+		} else {
+			unsafe { crate::raw::mlx_do_key_autorepeatoff(self.as_raw()) };
+		}
+	}
 }

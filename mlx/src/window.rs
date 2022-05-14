@@ -24,6 +24,7 @@ impl<'mlx, 'hooks> Drop for Inner<'mlx, 'hooks> {
 #[derive(Debug, Clone, Copy)]
 pub struct WindowError;
 
+#[derive(Clone)]
 pub struct Window<'mlx, 'hooks>(Rc<Inner<'mlx, 'hooks>>);
 
 impl<'mlx, 'hooks> Window<'mlx, 'hooks> {

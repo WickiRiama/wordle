@@ -130,5 +130,7 @@ impl Game {
 		if self.current_try == Self::MAX_TRIES {
 			todo!("You lost!");
 		}
+
+		self.cursor = 0;
 	}
 }
