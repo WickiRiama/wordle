@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Letter {
 	A,
 	B,
@@ -36,6 +36,8 @@ pub enum Correctness {
 }
 
 pub struct Game {
+	pub valid_words: Vec<[Letter; Self::WORD_SIZE]>,
+
 	pub winning_word: [Letter; Self::WORD_SIZE],
 
 	pub current_word: [Letter; Self::WORD_SIZE],
@@ -49,8 +51,11 @@ impl Game {
 	pub const WORD_SIZE: usize = 5;
 	pub const MAX_TRIES: usize = 6;
 
-	pub fn new(winning_word: [Letter; Self::WORD_SIZE]) -> Self {
+	pub fn new(winning_word: [Letter; Self::WORD_SIZE], mut valid_words: Vec<[Letter; Self::WORD_SIZE]>) -> Self {
+		valid_words.sort_unstable();
+		
 		Self {
+			valid_words,
 			winning_word,
 
 			current_word: [Letter::A; Self::WORD_SIZE],
@@ -78,6 +83,10 @@ impl Game {
 
 	pub fn confirm_word(&mut self) {
 		if self.cursor != Self::WORD_SIZE {
+			return;
+		}
+
+		if self.valid_words.binary_search(&self.current_word).is_err() {
 			return;
 		}
 
