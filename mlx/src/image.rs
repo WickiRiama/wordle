@@ -1,16 +1,22 @@
 use std::ffi::CStr;
-use std::marker::PhantomData;
 use std::os::raw::c_int;
 use std::rc::Rc;
 
 use crate::Mlx;
 
-struct Inner {
-	mlx: Mlx,
+struct Inner<'a> {
+	mlx: Mlx<'a>,
 	handle: crate::raw::Image,
+
+	width: u32,
+	height: u32,
+	bytes_per_pixel: u32,
+	line_size: u32,
+	big_endian: bool,
+	data: *mut u8,
 }
 
-impl Drop for Inner {
+impl<'a> Drop for Inner<'a> {
 	fn drop(&mut self) {
 		unsafe {
 			crate::raw::mlx_destroy_image(self.mlx.as_raw(), self.handle);
@@ -23,78 +29,94 @@ impl Drop for Inner {
 #[derive(Debug, Clone, Copy)]
 pub struct ImageError;
 
-/// An image, associated with a `width` and a `height`.
-/// 
-/// An instance of this type is returned by [`Mlx::create_image_from_xpm_file`] and.
-pub struct ImageAndSize {
-	/// The image itself.
-	pub image: Image,
-	/// The width of the image, in pixels.
-	pub width: u32,
-	/// The height of the image, in pixels.
-	pub height: u32,
-}
-
-/// Stores data about an image.
-pub struct ImageData<'a> {
-	pub bytes_per_pixel: u32,
-	pub line_size: u32,
-	pub big_endian: bool,
-	pub data: *mut u8,
-	_lifetime: PhantomData<&'a ()>,
-}
-
 /// A loaded image.
-pub struct Image(Rc<Inner>);
+pub struct Image<'a>(Rc<Inner<'a>>);
 
-impl Image {
-	pub(crate) fn create(mlx: Mlx, width: u32, height: u32) -> Result<Self, ImageError> {
+impl<'a> Image<'a> {
+	pub(crate) fn create(mlx: Mlx<'a>, width: u32, height: u32) -> Result<Self, ImageError> {
 		let handle = unsafe { crate::raw::mlx_new_image(mlx.as_raw(), width as c_int, height as c_int) };
+
+		let mut bits_per_pixel = 0;
+		let mut line_size = 0;
+		let mut endian = 0;
+
+		let data = unsafe { crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian) };
 
 		if handle.is_null() {
 			Err(ImageError)
 		} else {
-			Ok(Self(Rc::new(Inner { mlx, handle })))
+			Ok(Self(Rc::new(Inner {
+				mlx,
+				handle,
+				width,
+				height,
+				big_endian: endian != 0,
+				bytes_per_pixel: bits_per_pixel as u32 / 8,
+				line_size: line_size as u32,
+				data: data as *mut u8,
+			})))
 		}
 	}
 
-	pub(crate) fn create_from_xpm(mlx: Mlx, xpmdata: &CStr) -> Result<ImageAndSize, ImageError> {
+	pub(crate) fn create_from_xpm(mlx: Mlx<'a>, xpmdata: &CStr) -> Result<Self, ImageError> {
 		let mut width = 0;
 		let mut height = 0;
 
 		let handle = unsafe { crate::raw::mlx_xpm_to_image(mlx.as_raw(), xpmdata.as_ptr(), &mut width, &mut height) };
 
+		let mut bits_per_pixel = 0;
+		let mut line_size = 0;
+		let mut endian = 0;
+
+		let data = unsafe { crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian) };
+
 		if handle.is_null() {
 			Err(ImageError)
 		} else {
-			Ok(ImageAndSize {
-				image: Self(Rc::new(Inner { mlx, handle })),
+			Ok(Self(Rc::new(Inner {
+				mlx,
+				handle,
 				width: width as u32,
-				height: width as u32,
-			})
+				height: height as u32,
+				big_endian: endian != 0,
+				bytes_per_pixel: bits_per_pixel as u32 / 8,
+				line_size: line_size as u32,
+				data: data as *mut u8,
+			})))
 		}
 	}
 
-	pub(crate) fn create_from_xpm_file(mlx: Mlx, filename: &CStr) -> Result<ImageAndSize, ImageError> {
+	pub(crate) fn create_from_xpm_file(mlx: Mlx<'a>, filename: &CStr) -> Result<Self, ImageError> {
 		let mut width = 0;
 		let mut height = 0;
 
 		let handle = unsafe { crate::raw::mlx_xpm_file_to_image(mlx.as_raw(), filename.as_ptr(), &mut width, &mut height) };
 
+		let mut bits_per_pixel = 0;
+		let mut line_size = 0;
+		let mut endian = 0;
+
+		let data = unsafe { crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian) };
+
 		if handle.is_null() {
 			Err(ImageError)
 		} else {
-			Ok(ImageAndSize {
-				image: Self(Rc::new(Inner { mlx, handle })),
+			Ok(Self(Rc::new(Inner {
+				mlx,
+				handle,
 				width: width as u32,
-				height: width as u32,
-			})
+				height: height as u32,
+				big_endian: endian != 0,
+				bytes_per_pixel: bits_per_pixel as u32 / 8,
+				line_size: line_size as u32,
+				data: data as *mut u8,
+			})))
 		}
 	}
 
 	/// Returns a reference to the [`Mlx`] instance associated with this [`Image`].
 	#[inline]
-	pub fn mlx(&self) -> &Mlx {
+	pub fn mlx(&self) -> &Mlx<'a> {
 		&self.0 .mlx
 	}
 	
@@ -108,20 +130,33 @@ impl Image {
 		self.0 .handle
 	}
 
-	/// Returns the address of the image.
-	pub fn data_addr(&self) -> ImageData {
-		let mut bits_per_pixel = 0;
-		let mut line_size = 0;
-		let mut endian = 0;
+	#[inline]
+	pub fn width(&self) -> u32 {
+		self.0 .width
+	}
 
-		let data = unsafe { crate::raw::mlx_get_data_addr(self.as_raw(), &mut bits_per_pixel, &mut line_size, &mut endian) };
+	#[inline]
+	pub fn height(&self) -> u32 {
+		self.0 .height
+	}
 
-		ImageData {
-			big_endian: endian != 0,
-			bytes_per_pixel: bits_per_pixel as u32 / 8,
-			line_size: line_size as u32,
-			data: data as *mut u8,
-			_lifetime: PhantomData,
-		}
+	#[inline]
+	pub fn bytes_per_pixel(&self) -> u32 {
+		self.0 .bytes_per_pixel
+	}
+
+	#[inline]
+	pub fn line_size(&self) -> u32 {
+		self.0 .line_size
+	}
+
+	#[inline]
+	pub fn is_big_endian(&self) -> bool {
+		self.0 .big_endian
+	}
+
+	#[inline]
+	pub fn data(&self) -> *mut u8 {
+		self.0 .data
 	}
 }

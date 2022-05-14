@@ -1,6 +1,8 @@
 use std::ffi::c_void;
 use std::os::raw::{c_int, c_uint, c_ulong};
 
+use crate::KeyCode;
+
 /// A valid hook.
 pub trait Hook: Sized {
 	const X_EVENT: c_int;
@@ -15,7 +17,7 @@ pub trait Hook: Sized {
 
 /// Fires whenever a key is pressed.
 #[derive(Debug, Clone, Copy)]
-pub struct KeyPress(u32);
+pub struct KeyPress(pub KeyCode);
 
 impl Hook for KeyPress {
 	const X_EVENT: c_int = 2;
@@ -29,7 +31,7 @@ impl Hook for KeyPress {
 		where
 			F: FnMut(KeyPress)
 		{
-			(&mut *(userdata as *mut F))(KeyPress(keycode as u32));
+			(&mut *(userdata as *mut F))(KeyPress(KeyCode(keycode as u32)));
 			0
 		}
 		callback::<F> as usize
@@ -38,7 +40,7 @@ impl Hook for KeyPress {
 
 /// Fires whenever a key is released.
 #[derive(Debug, Clone, Copy)]
-pub struct KeyRelease(u32);
+pub struct KeyRelease(pub KeyCode);
 
 impl Hook for KeyRelease {
 	const X_EVENT: c_int = 3;
@@ -52,7 +54,7 @@ impl Hook for KeyRelease {
 		where
 			F: FnMut(KeyRelease)
 		{
-			(&mut *(userdata as *mut F))(KeyRelease(keycode as u32));
+			(&mut *(userdata as *mut F))(KeyRelease(KeyCode(keycode as u32)));
 			0
 		}
 		callback::<F> as usize
@@ -115,6 +117,29 @@ impl Hook for MouseRelease {
 				x: x as i32,
 				y: y as i32,
 			});
+			0
+		}
+		callback::<F> as usize
+	}
+}
+
+/// Fires whenever a mouse button is released.
+#[derive(Debug, Clone, Copy)]
+pub struct Destroy;
+
+impl Hook for Destroy {
+	const X_EVENT: c_int = 17;
+	const X_MASK: c_int = 0;
+
+	fn get_callback<F>() -> usize
+	where
+		F: FnMut(Self)
+	{
+		unsafe extern "C" fn callback<F>(userdata: *mut c_void) -> c_int
+		where
+			F: FnMut(Destroy)
+		{
+			(&mut *(userdata as *mut F))(Destroy);
 			0
 		}
 		callback::<F> as usize

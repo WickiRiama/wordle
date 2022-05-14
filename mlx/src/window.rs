@@ -1,20 +1,18 @@
-use std::any::Any;
 use std::cell::Cell;
 use std::os::raw::c_int;
 use std::rc::Rc;
 use std::ffi::{CStr, c_void};
 
+use crate::dyn_box::DynBox;
 use crate::{Mlx, Image, Hook};
 
-type HookCell = Cell<Option<Box<dyn Any>>>;
-
-struct Inner {
-	mlx: Mlx,
+struct Inner<'a> {
+	mlx: Mlx<'a>,
 	handle: crate::raw::Window,
-	hooks: [HookCell; 36]
+	hooks: [Cell<Option<DynBox<'a>>>; 36]
 }
 
-impl Drop for Inner {
+impl<'a> Drop for Inner<'a> {
 	fn drop(&mut self) {
 		unsafe {
 			crate::raw::mlx_destroy_window(self.mlx.as_raw(), self.handle);
@@ -26,10 +24,10 @@ impl Drop for Inner {
 #[derive(Debug, Clone, Copy)]
 pub struct WindowError;
 
-pub struct Window(Rc<Inner>);
+pub struct Window<'a>(Rc<Inner<'a>>);
 
-impl Window {
-	pub(crate) fn create(mlx: Mlx, width: u32, height: u32, title: &CStr) -> Result<Self, WindowError> {
+impl<'a> Window<'a> {
+	pub(crate) fn create(mlx: Mlx<'a>, width: u32, height: u32, title: &CStr) -> Result<Self, WindowError> {
 		let handle = unsafe { crate::raw::mlx_new_window(mlx.as_raw(), width as c_int, height as c_int, title.as_ptr()) };
 
 		if handle.is_null() {
@@ -55,7 +53,7 @@ impl Window {
 
 	/// Returns a reference to the inner `Mlx` instance.
 	#[inline]
-	pub fn mlx(&self) -> &Mlx {
+	pub fn mlx(&self) -> &Mlx<'a> {
 		&self.0 .mlx
 	}
 
@@ -74,11 +72,11 @@ impl Window {
 	/// Hooks a function to listen for a specific event on this window.
 	pub fn hook<H, F>(&self, f: F)
 	where
-		F: FnMut(H) + 'static,
+		F: FnMut(H) + 'a,
 		H: Hook,
 	{
 		let mut b: Box<F> = Box::new(f);
 		unsafe { crate::raw::mlx_hook(self.as_raw(), H::X_EVENT, H::X_MASK, H::get_callback::<F>(), &mut *b as *mut F as *mut c_void) };
-		self.0 .hooks[H::X_EVENT as usize].set(Some(b));
+		self.0 .hooks[H::X_EVENT as usize].set(Some(DynBox::new(b)));
 	}
 }

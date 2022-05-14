@@ -6,3 +6,6 @@ authors = ["Nils Mathieu <nmathieu@student.42.fr>", "Margaux Riant <mriant@stude
 
 [workspace]
 members = ["mlx"]
+
+[dependencies]
+mlx = { path = "mlx" }
