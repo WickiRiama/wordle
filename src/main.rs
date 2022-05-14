@@ -24,12 +24,19 @@ const HEIGHT: u32 = 494;
 
 fn create_dict() -> Vec<[Letter; 5]> {
     std::fs::read("words.txt")
-        .expect("Failed to read 'words.txt'")
+        .unwrap_or_else(|_| panic!("Failed to read 'words.txt'."))
         .split(|c| *c == b'\n')
         .enumerate()
         .map(|(i, s)| {
             match *s {
-                [a, b, c, d, e] => match (Letter::from_ascii_char(a), Letter::from_ascii_char(b), Letter::from_ascii_char(c), Letter::from_ascii_char(d), Letter::from_ascii_char(e)) {
+                [a, b, c, d, e] => match (
+                    Letter::from_ascii_char(a),
+                    Letter::from_ascii_char(b),
+                    Letter::from_ascii_char(c),
+                    Letter::from_ascii_char(d),
+                    Letter::from_ascii_char(e)
+                )
+                {
                     (Some(a), Some(b), Some(c), Some(d), Some(e)) => return [a, b, c, d, e],
                     _ => {},
                 },
@@ -42,31 +49,30 @@ fn create_dict() -> Vec<[Letter; 5]> {
 }
 
 fn main() {
-    // custom_panic::set_custom_panic_hook();
+    // Installs a custom panic hook so that error messages are properly displayed on
+    // error.
+    custom_panic::set_custom_panic_hook();
 
-    let game = Rc::new(RefCell::new(Game::new([Letter::A, Letter::B, Letter::C, Letter::D, Letter::E], create_dict())));
+    let game = Rc::new(RefCell::new(Game::new(create_dict())));
     
-    let mlx = Mlx::init().expect("Failed to initialize the MiniLibX.");
-    mlx.set_autorepeat(false);
+    // Initialize MiniLibX and load the images.
+    let mlx = Mlx::init().unwrap_or_else(|_| panic!("Failed to initialize the MiniLibX."));
     let images = Images::load(&mlx);
-    let win = mlx.create_window(WIDTH, HEIGHT, cstr("Test\0")).expect("Failed to initialize the window.");
-    let img = mlx.create_image(WIDTH, HEIGHT).unwrap();
+
+    // This image is used to draw on the whole screen.
+    let canvas = mlx.create_image(WIDTH, HEIGHT).unwrap();
+    let win = mlx.create_window(WIDTH, HEIGHT, cstr("Wordle\0")).unwrap_or_else(|_| panic!("Failed to create a window."));
     
     let win2 = win.clone();
     let game2 = game.clone();
     mlx.hook_loop(move || {
-        draw(&game2.borrow(), &img, &images);
-        win2.put_image(&img, 0, 0);
+        draw(&game2.borrow(), &canvas, &images);
+        win2.put_image(&canvas, 0, 0);
     });
 
     let mlx2 = mlx.clone();
     win.hook(move |KeyPress(keycode)| {
         let mut game = game.borrow_mut();
-
-        if keycode == KeyCode::ESCAPE {
-            mlx2.stop_loop();
-            return;
-        }
 
         match keycode {
             KeyCode::A => game.type_letter(Letter::A),
@@ -97,6 +103,7 @@ fn main() {
             KeyCode::Z => game.type_letter(Letter::Z),
             KeyCode::BACKSPACE => game.cancel_letter(),
             KeyCode::RETURN => game.confirm_word(),
+            KeyCode::ESCAPE => mlx2.stop_loop(),
             _ => (),
         }
     });

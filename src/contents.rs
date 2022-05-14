@@ -14,10 +14,10 @@ pub struct Images<'a> {
 impl<'a> Images<'a> {
 	pub fn load(mlx: &Mlx<'a>) -> Self {
 		Self {
-			black_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_black.xpm\0")).expect(IMAGE_LOAD_ERROR),
-			green_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_green.xpm\0")).expect(IMAGE_LOAD_ERROR),
-			yellow_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_yellow.xpm\0")).expect(IMAGE_LOAD_ERROR),
-			grey_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_grey.xpm\0")).expect(IMAGE_LOAD_ERROR),
+			black_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_black.xpm\0")).unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR)),
+			green_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_green.xpm\0")).unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR)),
+			yellow_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_yellow.xpm\0")).unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR)),
+			grey_letters: mlx.create_image_from_xpm_file(cstr("assets/alphabet_grey.xpm\0")).unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR)),
 		}
 	}
 }
