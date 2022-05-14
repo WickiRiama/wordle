@@ -31,15 +31,13 @@ fn main() {
     win.put_image(&green_alpha, 0, 128);
     win.put_image(&grey_alpha, 0, 192);
     mlx.hook_loop(move || {});
-    let mlx3 = mlx.clone();
-    win.hook(move |KeyPress(keycode)| {
+    win.hook(|KeyPress(keycode)| {
         if keycode == KeyCode::ESCAPE {
-            mlx3.stop_loop();
+            mlx.stop_loop();
         }
     });
-    let mlx2 = mlx.clone();
-    win.hook(move |Destroy| {
-        mlx2.stop_loop();
+    win.hook(|Destroy| {
+        mlx.stop_loop();
     });
 
     mlx.start_loop();

@@ -6,12 +6,12 @@ use std::ffi::{c_void, CStr};
 use crate::dyn_box::DynBox;
 use crate::{Window, WindowError, ImageError, Image};
 
-struct Inner<'a> {
+struct Inner<'hook> {
 	handle: crate::raw::Mlx,
-	loop_hook: Cell<Option<DynBox<'a>>>,
+	loop_hook: Cell<Option<DynBox<'hook>>>,
 }
 
-impl<'a> Drop for Inner<'a> {
+impl<'hook> Drop for Inner<'hook> {
 	fn drop(&mut self) {
 		extern "C" {
 			fn free(ptr: *mut c_void);
@@ -32,9 +32,9 @@ pub struct InitError;
 
 /// An open connection with *MiniLibX*. An instance of this type is required to work with about anything.
 #[derive(Clone)]
-pub struct Mlx<'a>(Rc<Inner<'a>>);
+pub struct Mlx<'hook>(Rc<Inner<'hook>>);
 
-impl<'a> Mlx<'a> {
+impl<'hook> Mlx<'hook> {
 	/// Returns the raw handle protected by this instance.
 	/// 
 	/// ## Safety
@@ -46,7 +46,7 @@ impl<'a> Mlx<'a> {
 	}
 
     /// Initializes a new instance of *MiniLibX*.
-    pub fn init() -> Result<Mlx<'a>, InitError> {
+    pub fn init() -> Result<Mlx<'hook>, InitError> {
         // Safety:
         //  This function is never unsafe to call.
         let handle = unsafe { crate::raw::mlx_init() };
@@ -63,25 +63,25 @@ impl<'a> Mlx<'a> {
 
 	/// Creates a new [`Window`] instance.
 	#[inline]
-	pub fn create_window(&self, width: u32, height: u32, name: &CStr) -> Result<Window<'a>, WindowError> {
+	pub fn create_window<'hooks>(&self, width: u32, height: u32, name: &CStr) -> Result<Window<'hook, 'hooks>, WindowError> {
 		Window::create(self.clone(), width, height, name)
 	}
 
 	/// Creates a new empty [`Image`].
 	#[inline]
-	pub fn create_image(&self, width: u32, height: u32) -> Result<Image<'a>, ImageError>  {
+	pub fn create_image(&self, width: u32, height: u32) -> Result<Image<'hook>, ImageError>  {
 		Image::create(self.clone(), width, height)
 	}
 
 	/// Creates a new image from the content of an XPM-encoded file.
 	#[inline]
-	pub fn create_image_from_xpm(&self, xpm_data: &CStr) -> Result<Image<'a>, ImageError> {
+	pub fn create_image_from_xpm(&self, xpm_data: &CStr) -> Result<Image<'hook>, ImageError> {
 		Image::create_from_xpm(self.clone(), xpm_data)
 	}
 
 	/// Creates a new image from an XPM-encoded file.
 	#[inline]
-	pub fn create_image_from_xpm_file(&self, file_path: &CStr) -> Result<Image<'a>, ImageError> {
+	pub fn create_image_from_xpm_file(&self, file_path: &CStr) -> Result<Image<'hook>, ImageError> {
 		Image::create_from_xpm_file(self.clone(), file_path)
 	}
 
@@ -91,7 +91,7 @@ impl<'a> Mlx<'a> {
 	/// available.
 	pub fn hook_loop<F>(&self, f: F)
 	where
-		F: FnMut() + 'a,
+		F: FnMut() + 'hook,
 	{
 		unsafe extern "C" fn callback<F: FnMut()>(userdata: *mut c_void) -> c_int {
 			(&mut *(userdata as *mut F))();
