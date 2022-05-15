@@ -125,7 +125,7 @@ fn copy_image(source: &Image, dst_x: u32, dst_y: u32, destination: &Image) {
     for y in 0..source.height() {
         for x in 0..source.width() {
             copy_pixel(destination, dst_x + x, dst_y + y, unsafe {
-                source.data().add((x + source.width() * y) as usize)
+                source.data().add((x * source.bytes_per_pixel() + source.line_size() * y) as usize)
             });
         }
     }
@@ -137,10 +137,10 @@ fn draw_final_screen(
     image: &Image,
     alphabet: &Image,
 ) {
-    copy_image(image, 30, 494, target);
+    copy_image(image, 10, 494, target);
 
     for (i, &letter) in word.iter().enumerate() {
-        draw_letter(letter, 64 * i as u32, 500, target, alphabet, 64);
+        draw_letter(letter, 75 + 64 * i as u32, 540, target, alphabet, 64);
     }
 }
 
