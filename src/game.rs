@@ -134,8 +134,8 @@ impl Game {
 
         valid_words.sort_unstable();
 
-        //let index = unsafe { libc::rand() as usize % valid_words.len() };
-        let winning_word = valid_words[11266];
+        let index = unsafe { libc::rand() as usize % valid_words.len() };
+        let winning_word = valid_words[index];
 
         println!(
             "Winning Word: {:?}{:?}{:?}{:?}{:?}",
