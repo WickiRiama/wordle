@@ -12,6 +12,10 @@ pub struct Images {
     pub won_final_screen: Image,
     pub lost_final_screen: Image,
     pub winning_letters: Image,
+    pub black_letters_32: Image,
+    pub green_letters_32: Image,
+    pub grey_letters_32: Image,
+    pub yellow_letters_32: Image,
 }
 
 impl Images {
@@ -33,6 +37,10 @@ impl Images {
             won_final_screen: load_image(mlx, "assets/alphabet_grey.xpm\0"),
             lost_final_screen: load_image(mlx, "assets/alphabet_grey.xpm\0"),
             winning_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
+			black_letters_32: load_image(mlx, "assets/alphabet_black_grey_border_32.xpm\0"),
+            green_letters_32: load_image(mlx, "assets/alphabet_green_grey_border_32.xpm\0"),
+            yellow_letters_32: load_image(mlx, "assets/alphabet_yellow_grey_border_32.xpm\0"),
+            grey_letters_32: load_image(mlx, "assets/alphabet_grey_grey_border_32.xpm\0"),
         }
     }
 }

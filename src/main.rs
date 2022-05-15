@@ -19,8 +19,8 @@ fn cstr(s: &str) -> &CStr {
     CStr::from_bytes_with_nul(s.as_bytes()).unwrap()
 }
 
-const WIDTH: u32 = 420;
-const HEIGHT: u32 = 494;
+const WIDTH: u32 = 470;
+const HEIGHT: u32 = 640;
 
 fn create_dict() -> Vec<[Letter; 5]> {
     let mut vec = Vec::<u8>::new();

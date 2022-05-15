@@ -68,15 +68,15 @@ impl Letter {
 }
 
 /// Describes how correct a letter is.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum Correctness {
-    /// The letter is in the right place.
-    Correct,
-    /// The letter exists in the winning word but is not in the right place.
-    Misplaced,
     /// The letter is not in the winning word.
     Incorrect,
+    /// The letter exists in the winning word but is not in the right place.
+    Misplaced,
+	/// The letter is in the right place.
+    Correct,
 }
 
 /// A state the game can be in.
@@ -114,6 +114,8 @@ pub struct Game {
 
     /// The current state of the game.
     pub state: GameState,
+	/// The state of each letter
+	pub letters_state: [Option<Correctness>; 26],
 }
 
 impl Game {
@@ -152,6 +154,7 @@ impl Game {
             current_try: 0,
 
             state: GameState::Playing,
+			letters_state: [None; 26],
         }
     }
 
@@ -242,6 +245,12 @@ impl Game {
             return;
         }
 
+		for (letter, correctness) in self.previous_words[self.current_try]{
+			if self.letters_state[letter as usize] < Some(correctness) {
+				self.letters_state[letter as usize] = Some(correctness);
+			}
+		}
+		
         self.current_try += 1;
         if self.current_try == Self::MAX_TRIES {
             self.state = GameState::Lost;
