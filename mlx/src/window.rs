@@ -21,22 +21,13 @@ impl Window {
         height: u32,
         title: &CStr,
     ) -> Result<Self, WindowError> {
-        let handle = 
-            crate::raw::mlx_new_window(
-                mlx,
-                width as c_int,
-                height as c_int,
-                title.as_ptr(),
-            )
-        ;
+        let handle =
+            crate::raw::mlx_new_window(mlx, width as c_int, height as c_int, title.as_ptr());
 
         if handle.is_null() {
             Err(WindowError)
         } else {
-            Ok(Self {
-                handle,
-                mlx,
-            })
+            Ok(Self { handle, mlx })
         }
     }
 
@@ -77,9 +68,9 @@ impl Window {
     }
 
     /// Hooks a function to listen for a specific event on this window.
-    /// 
+    ///
     /// ## Safety
-    /// 
+    ///
     /// The produced `DynBox` must be kept alive for the lifetime of the
     /// window.
     pub unsafe fn hook<'a, H, F>(&self, f: F) -> DynBox<'a>
@@ -88,7 +79,7 @@ impl Window {
         H: Hook,
     {
         let mut b: Box<F> = Box::new(f);
-        
+
         crate::raw::mlx_hook(
             self.as_raw(),
             H::X_EVENT,

@@ -75,7 +75,7 @@ pub enum Correctness {
     Incorrect,
     /// The letter exists in the winning word but is not in the right place.
     Misplaced,
-	/// The letter is in the right place.
+    /// The letter is in the right place.
     Correct,
 }
 
@@ -114,8 +114,8 @@ pub struct Game {
 
     /// The current state of the game.
     pub state: GameState,
-	/// The state of each letter
-	pub letters_state: [Option<Correctness>; 26],
+    /// The state of each letter
+    pub letters_state: [Option<Correctness>; 26],
 }
 
 impl Game {
@@ -128,7 +128,7 @@ impl Game {
     ///
     /// A winning word will be choosen from the given word list.
     pub fn new(mut valid_words: Vec<[Letter; Self::WORD_SIZE]>) -> Self {
-        if valid_words.len() == 0 {
+        if valid_words.is_empty() {
             panic!("The input word list must contain at least one value.");
         }
 
@@ -154,7 +154,7 @@ impl Game {
             current_try: 0,
 
             state: GameState::Playing,
-			letters_state: [None; 26],
+            letters_state: [None; 26],
         }
     }
 
@@ -189,12 +189,16 @@ impl Game {
 
                 println!(
                     "Winning Word: {:?}{:?}{:?}{:?}{:?}",
-                    self.winning_word[0], self.winning_word[1], self.winning_word[2], self.winning_word[3], self.winning_word[4]
+                    self.winning_word[0],
+                    self.winning_word[1],
+                    self.winning_word[2],
+                    self.winning_word[3],
+                    self.winning_word[4]
                 );
 
                 self.cursor = 0;
                 self.current_try = 0;
-                
+
                 return;
             }
         }
@@ -231,9 +235,9 @@ impl Game {
                 continue;
             }
 
-            for i in 0..Self::WORD_SIZE {
-                if !seen[i] && *letter == self.winning_word[i] {
-                    seen[i] = true;
+            for (s, winning_letter) in seen.iter_mut().zip(self.winning_word) {
+                if !*s && *letter == winning_letter {
+                    *s = true;
                     *correctness = Correctness::Misplaced;
                 }
             }
@@ -245,12 +249,12 @@ impl Game {
             return;
         }
 
-		for (letter, correctness) in self.previous_words[self.current_try]{
-			if self.letters_state[letter as usize] < Some(correctness) {
-				self.letters_state[letter as usize] = Some(correctness);
-			}
-		}
-		
+        for (letter, correctness) in self.previous_words[self.current_try] {
+            if self.letters_state[letter as usize] < Some(correctness) {
+                self.letters_state[letter as usize] = Some(correctness);
+            }
+        }
+
         self.current_try += 1;
         if self.current_try == Self::MAX_TRIES {
             self.state = GameState::Lost;

@@ -37,16 +37,14 @@ impl Mlx {
         if handle.is_null() {
             Err(InitError)
         } else {
-            Ok(Mlx {
-                handle,
-            })
+            Ok(Mlx { handle })
         }
     }
 
     /// Creates a new [`Window`] instance.
-    /// 
+    ///
     /// ## Safety
-    /// 
+    ///
     /// The produced [`Window`] must be dropped *after* this [`Mlx`] instance.
     #[inline]
     pub unsafe fn create_window(
@@ -59,9 +57,9 @@ impl Mlx {
     }
 
     /// Creates a new empty [`Image`].
-    /// 
+    ///
     /// ## Safety
-    /// 
+    ///
     /// The produced [`Image`] must be dropped *after* this [`Mlx`] instance.
     #[inline]
     pub unsafe fn create_image(&self, width: u32, height: u32) -> Result<Image, ImageError> {
@@ -69,9 +67,9 @@ impl Mlx {
     }
 
     /// Creates a new image from the content of an XPM-encoded file.
-    /// 
+    ///
     /// ## Safety
-    /// 
+    ///
     /// The produced [`Image`] must be dropped *after* this [`Mlx`] instance.
     #[inline]
     pub unsafe fn create_image_from_xpm(&self, xpm_data: &CStr) -> Result<Image, ImageError> {
@@ -79,9 +77,9 @@ impl Mlx {
     }
 
     /// Creates a new image from an XPM-encoded file.
-    /// 
+    ///
     /// ## Safety
-    /// 
+    ///
     /// The produced [`Image`] must be dropped *after* this [`Mlx`] instance.
     #[inline]
     pub unsafe fn create_image_from_xpm_file(&self, file_path: &CStr) -> Result<Image, ImageError> {

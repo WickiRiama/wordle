@@ -20,12 +20,11 @@ pub struct Images {
 
 impl Images {
     /// ## Safety
-    /// 
+    ///
     /// The created instance must be dropped after `mlx`.
     pub unsafe fn load(mlx: &Mlx) -> Self {
         unsafe fn load_image(mlx: &Mlx, name: &str) -> Image {
-            mlx
-                .create_image_from_xpm_file(cstr(name))
+            mlx.create_image_from_xpm_file(cstr(name))
                 .unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR))
         }
 
@@ -37,7 +36,7 @@ impl Images {
             won_final_screen: load_image(mlx, "assets/alphabet_grey.xpm\0"),
             lost_final_screen: load_image(mlx, "assets/alphabet_grey.xpm\0"),
             winning_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
-			black_letters_32: load_image(mlx, "assets/alphabet_black_grey_border_32.xpm\0"),
+            black_letters_32: load_image(mlx, "assets/alphabet_black_grey_border_32.xpm\0"),
             green_letters_32: load_image(mlx, "assets/alphabet_green_grey_border_32.xpm\0"),
             yellow_letters_32: load_image(mlx, "assets/alphabet_yellow_grey_border_32.xpm\0"),
             grey_letters_32: load_image(mlx, "assets/alphabet_grey_grey_border_32.xpm\0"),

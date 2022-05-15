@@ -21,17 +21,19 @@ pub struct Image {
 }
 
 impl Image {
-    pub(crate) unsafe fn create(mlx: crate::raw::Mlx, width: u32, height: u32) -> Result<Self, ImageError> {
-        let handle =
-             crate::raw::mlx_new_image(mlx, width as c_int, height as c_int) ;
+    pub(crate) unsafe fn create(
+        mlx: crate::raw::Mlx,
+        width: u32,
+        height: u32,
+    ) -> Result<Self, ImageError> {
+        let handle = crate::raw::mlx_new_image(mlx, width as c_int, height as c_int);
 
         let mut bits_per_pixel = 0;
         let mut line_size = 0;
         let mut endian = 0;
 
-        let data = 
-            crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian)
-        ;
+        let data =
+            crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian);
 
         if handle.is_null() {
             Err(ImageError)
@@ -49,13 +51,14 @@ impl Image {
         }
     }
 
-    pub(crate) unsafe fn create_from_xpm(mlx: crate::raw::Mlx, xpmdata: &CStr) -> Result<Self, ImageError> {
+    pub(crate) unsafe fn create_from_xpm(
+        mlx: crate::raw::Mlx,
+        xpmdata: &CStr,
+    ) -> Result<Self, ImageError> {
         let mut width = 0;
         let mut height = 0;
 
-        let handle = 
-            crate::raw::mlx_xpm_to_image(mlx, xpmdata.as_ptr(), &mut width, &mut height)
-        ;
+        let handle = crate::raw::mlx_xpm_to_image(mlx, xpmdata.as_ptr(), &mut width, &mut height);
 
         if handle.is_null() {
             Err(ImageError)
@@ -64,18 +67,15 @@ impl Image {
         }
     }
 
-    pub(crate) unsafe fn create_from_xpm_file(mlx: crate::raw::Mlx, filename: &CStr) -> Result<Self, ImageError> {
+    pub(crate) unsafe fn create_from_xpm_file(
+        mlx: crate::raw::Mlx,
+        filename: &CStr,
+    ) -> Result<Self, ImageError> {
         let mut width = 0;
         let mut height = 0;
 
-        let handle = 
-            crate::raw::mlx_xpm_file_to_image(
-                mlx,
-                filename.as_ptr(),
-                &mut width,
-                &mut height,
-            )
-        ;
+        let handle =
+            crate::raw::mlx_xpm_file_to_image(mlx, filename.as_ptr(), &mut width, &mut height);
 
         if handle.is_null() {
             Err(ImageError)
@@ -84,14 +84,18 @@ impl Image {
         }
     }
 
-    unsafe fn image_finish(mlx: crate::raw::Mlx, handle: crate::raw::Image, width: u32, height: u32) -> Self {
+    unsafe fn image_finish(
+        mlx: crate::raw::Mlx,
+        handle: crate::raw::Image,
+        width: u32,
+        height: u32,
+    ) -> Self {
         let mut bits_per_pixel = 0;
         let mut line_size = 0;
         let mut endian = 0;
 
-        let data = 
-            crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian)
-        ;
+        let data =
+            crate::raw::mlx_get_data_addr(handle, &mut bits_per_pixel, &mut line_size, &mut endian);
 
         Self {
             mlx,
@@ -151,7 +155,6 @@ impl Image {
         self.data
     }
 }
-
 
 impl Drop for Image {
     fn drop(&mut self) {

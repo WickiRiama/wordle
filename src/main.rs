@@ -24,19 +24,23 @@ const HEIGHT: u32 = 640;
 
 fn create_dict() -> Vec<[Letter; 5]> {
     let mut vec = Vec::<u8>::new();
-    
+
     unsafe {
         let mut count: libc::ssize_t;
 
         let fd = libc::open(b"words.txt\0".as_ptr() as _, libc::O_RDONLY);
-        
+
         if fd < 0 {
             panic!("Failed to open 'words.txt'.");
         }
-        
+
         loop {
             vec.reserve(2048);
-            count = libc::read(fd, vec.as_mut_ptr().add(vec.len()) as _, vec.capacity() - vec.len());
+            count = libc::read(
+                fd,
+                vec.as_mut_ptr().add(vec.len()) as _,
+                vec.capacity() - vec.len(),
+            );
 
             if count < 0 {
                 panic!("Failed to read from 'words.txt'");
@@ -50,22 +54,19 @@ fn create_dict() -> Vec<[Letter; 5]> {
         }
     };
 
-    vec
-        .split(|c| *c == b'\n')
+    vec.split(|c| *c == b'\n')
         .enumerate()
         .map(|(i, s)| {
-            match *s {
-                [a, b, c, d, e] => match (
+            if let [a, b, c, d, e] = *s {
+                if let (Some(a), Some(b), Some(c), Some(d), Some(e)) = (
                     Letter::from_ascii_char(a),
                     Letter::from_ascii_char(b),
                     Letter::from_ascii_char(c),
                     Letter::from_ascii_char(d),
                     Letter::from_ascii_char(e),
                 ) {
-                    (Some(a), Some(b), Some(c), Some(d), Some(e)) => return [a, b, c, d, e],
-                    _ => {}
-                },
-                _ => {}
+                    return [a, b, c, d, e];
+                }
             }
 
             panic!("Wrong word on line {}: '{}'", i + 1, s.escape_ascii());
@@ -89,18 +90,19 @@ fn main() {
     let mlx = Mlx::init().unwrap_or_else(|_| panic!("Failed to initialize the MiniLibX."));
 
     // This image is used to draw on the whole screen.
-    let win = unsafe { mlx
-        .create_window(WIDTH, HEIGHT, cstr("Wordle\0")) }
+    let win = unsafe { mlx.create_window(WIDTH, HEIGHT, cstr("Wordle\0")) }
         .unwrap_or_else(|_| panic!("Failed to create a window."));
 
-    let _h = unsafe { win.hook(|Destroy| {
-        win.mlx().stop_loop();
-    }) };
+    let _h = unsafe {
+        win.hook(|Destroy| {
+            win.mlx().stop_loop();
+        })
+    };
 
     let _h = unsafe {
         win.hook(|KeyPress(keycode)| {
             let mut game = game.borrow_mut();
-    
+
             match keycode {
                 KeyCode::A => game.type_letter(Letter::A),
                 KeyCode::B => game.type_letter(Letter::B),
@@ -136,7 +138,7 @@ fn main() {
         })
     };
 
-    let canvas = unsafe { win.mlx().create_image(WIDTH, HEIGHT).unwrap() } ;
+    let canvas = unsafe { win.mlx().create_image(WIDTH, HEIGHT).unwrap() };
     let images = unsafe { Images::load(win.mlx()) };
     mlx.start_loop(|| {
         draw(&game.borrow(), &canvas, &images);
