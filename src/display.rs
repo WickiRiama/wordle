@@ -108,6 +108,22 @@ fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images
     }
 }
 
+fn copy_image(source: &Image, dst_x: u32, dst_y: u32, destination: &Image) {
+    for y in 0..source.height() {
+        for x in 0..source.width() {
+            copy_pixel(destination, dst_x +x , dst_y + y, unsafe { source.data().add((x + source.width() * y) as usize) });
+        }
+    }
+}
+
+fn draw_final_screen(word: [Letter; Game::WORD_SIZE], target: &Image, image: &Image, alphabet: &Image) {
+    copy_image(image, 30, 494, target);
+    
+    for letter_x in 0..Game::WORD_SIZE {
+        draw_letter(word[letter_x], 64 * letter_x as u32, 500, target, alphabet)
+    }
+}
+
 pub fn draw(game: &Game, output: &Image, images: &Images) {
     init_bg(output);
     for i in 0..game.current_try {
@@ -120,4 +136,10 @@ pub fn draw(game: &Game, output: &Image, images: &Images) {
         output,
         &images.black_letters,
     );
+
+    match game.state {
+        GameState::Playing => (),
+        GameState::Lost => draw_final_screen(game.winning_word, output, &images.lost_final_screen, &images.winning_letters),
+        GameState::Won => draw_final_screen(game.winning_word, output, &images.won_final_screen, &images.winning_letters),
+    }
 }

@@ -79,6 +79,20 @@ pub enum Correctness {
     Incorrect,
 }
 
+/// A state the game can be in.
+#[derive(Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum GameState {
+    /// The game is currently being played.
+    Playing,
+
+    /// The game is finished and the player won.
+    Won,
+
+    /// The game is finished and the player lost.
+    Lost,
+}
+
 /// Stores the current state of the game.
 pub struct Game {
     /// A collection of valid words. Words outside of this list won't be accepted
@@ -97,6 +111,9 @@ pub struct Game {
     pub previous_words: [[(Letter, Correctness); Self::WORD_SIZE]; Self::MAX_TRIES],
     /// The number of guesses the player tried.
     pub current_try: usize,
+
+    /// The current state of the game.
+    pub state: GameState,
 }
 
 impl Game {
@@ -118,13 +135,10 @@ impl Game {
         let index = unsafe { libc::rand() as usize % valid_words.len() };
         let winning_word = valid_words[index];
 
-        #[cfg(debug_assertions)]
-        {
-            println!(
-                "Winning Word: {:?}{:?}{:?}{:?}{:?}",
-                winning_word[0], winning_word[1], winning_word[2], winning_word[3], winning_word[4]
-            );
-        }
+        println!(
+            "Winning Word: {:?}{:?}{:?}{:?}{:?}",
+            winning_word[0], winning_word[1], winning_word[2], winning_word[3], winning_word[4]
+        );
 
         Self {
             valid_words,
@@ -136,6 +150,8 @@ impl Game {
             previous_words: [[(Letter::A, Correctness::Incorrect); Self::WORD_SIZE];
                 Self::MAX_TRIES],
             current_try: 0,
+
+            state: GameState::Playing,
         }
     }
 
@@ -158,6 +174,28 @@ impl Game {
 
     /// Tries to confirm the current word.
     pub fn confirm_word(&mut self) {
+        match self.state {
+            GameState::Playing => (),
+
+            // If the game isn't currently playing, reset the state of the game so we can retry.
+            GameState::Won | GameState::Lost => {
+                self.current_try = 0;
+
+                let index = unsafe { libc::rand() as usize % self.valid_words.len() };
+                self.winning_word = self.valid_words[index];
+
+                println!(
+                    "Winning Word: {:?}{:?}{:?}{:?}{:?}",
+                    self.winning_word[0], self.winning_word[1], self.winning_word[2], self.winning_word[3], self.winning_word[4]
+                );
+
+                self.cursor = 0;
+                self.current_try = 0;
+                
+                return;
+            }
+        }
+
         // All five letters must have been typed.
         if self.cursor != Self::WORD_SIZE {
             return;
@@ -200,12 +238,14 @@ impl Game {
 
         // If the winning word is the current word, then the player won.
         if self.winning_word == self.current_word {
-            todo!("You won!");
+            self.state = GameState::Won;
+            return;
         }
 
         self.current_try += 1;
         if self.current_try == Self::MAX_TRIES {
-            todo!("You lost!");
+            self.state = GameState::Lost;
+            return;
         }
 
         // The user did not find the word but they can try again!
