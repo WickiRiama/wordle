@@ -42,16 +42,16 @@ fn copy_pixel(dst: &Image, dst_x: u32, dst_y: u32, mut pixel: *const u8) {
 fn draw_square(size: u32, x: u32, y: u32, weight: u32, img: &Image) {
     for j in 0..weight {
         for i in 0..=size - 1 - j * 2 {
-            set_pixel(img, x + j + i, y + j, 0);
-            set_pixel(img, x + j, y + i - j, 0);
-            set_pixel(img, x + j + i, y - j + size - 1, 0);
-            set_pixel(img, x - j + size - 1, y + j + i, 0);
+            set_pixel(img, x + j + i, y + j, 0xca);
+            set_pixel(img, x + j, y + i - j, 0xca);
+            set_pixel(img, x + j + i, y - j + size - 1, 0xca);
+            set_pixel(img, x - j + size - 1, y + j + i, 0xca);
         }
     }
 }
 
 fn draw_n_squares(img: &Image, nb_col: u32, nb_row: u32, size: u32) {
-    let mut x = 60;
+    let mut x = 55;
     let mut y;
     for _ in 0..nb_col {
         y = 30;
@@ -98,7 +98,7 @@ fn draw_letter(
 }
 
 fn draw_current(word: [Letter; 5], row: u32, cursor: usize, img: &Image, alphabet: &Image) {
-    let mut x = 60;
+    let mut x = 55;
     let y = 30 + row * 64 + row * 10;
     for letter in &word[0..cursor] {
         draw_letter(*letter, x, y, img, alphabet, 64);
@@ -107,7 +107,7 @@ fn draw_current(word: [Letter; 5], row: u32, cursor: usize, img: &Image, alphabe
 }
 
 fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images: &Images) {
-    let mut x = 60;
+    let mut x = 55;
     let y = 30 + row * 64 + row * 10;
     let mut alphabet: &Image;
     for (letter, correctness) in word {
@@ -160,7 +160,7 @@ fn draw_keyboard(img: &Image, images: &Images, game: &Game) {
         x += 42;
     }
     y += 42;
-    x = 46;
+    x = 51;
     for &letter in &LAYOUT[10..19] {
         match game.letters_state[letter as usize] {
             Some(Correctness::Correct) => alphabet = &images.green_letters_32,
@@ -172,7 +172,7 @@ fn draw_keyboard(img: &Image, images: &Images, game: &Game) {
         x += 42;
     }
     y += 42;
-    x = 78;
+    x = 93;
     for &letter in &LAYOUT[19..26] {
         match game.letters_state[letter as usize] {
             Some(Correctness::Correct) => alphabet = &images.green_letters_32,

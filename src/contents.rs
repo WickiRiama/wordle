@@ -29,17 +29,17 @@ impl Images {
         }
 
         Self {
-            black_letters: load_image(mlx, "assets/alphabet_black.xpm\0"),
-            green_letters: load_image(mlx, "assets/alphabet_green.xpm\0"),
-            yellow_letters: load_image(mlx, "assets/alphabet_yellow.xpm\0"),
-            grey_letters: load_image(mlx, "assets/alphabet_grey.xpm\0"),
+            black_letters: load_image(mlx, "assets/alphabet_black_grey_border.xpm\0"),
+            green_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
+            yellow_letters: load_image(mlx, "assets/alphabet_yellow_no_border.xpm\0"),
+            grey_letters: load_image(mlx, "assets/alphabet_grey_no_border.xpm\0"),
             won_final_screen: load_image(mlx, "assets/you_won.xpm\0"),
             lost_final_screen: load_image(mlx, "assets/you_lost.xpm\0"),
             winning_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
             black_letters_32: load_image(mlx, "assets/alphabet_black_grey_border_32.xpm\0"),
-            green_letters_32: load_image(mlx, "assets/alphabet_green_grey_border_32.xpm\0"),
-            yellow_letters_32: load_image(mlx, "assets/alphabet_yellow_grey_border_32.xpm\0"),
-            grey_letters_32: load_image(mlx, "assets/alphabet_grey_grey_border_32.xpm\0"),
+            green_letters_32: load_image(mlx, "assets/alphabet_green_no_border_32.xpm\0"),
+            yellow_letters_32: load_image(mlx, "assets/alphabet_yellow_no_border_32.xpm\0"),
+            grey_letters_32: load_image(mlx, "assets/alphabet_grey_no_border_32.xpm\0"),
         }
     }
 }
