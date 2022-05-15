@@ -23,8 +23,34 @@ const WIDTH: u32 = 420;
 const HEIGHT: u32 = 494;
 
 fn create_dict() -> Vec<[Letter; 5]> {
-    std::fs::read("words.txt")
-        .unwrap_or_else(|_| panic!("Failed to read 'words.txt'."))
+    let mut vec = Vec::<u8>::new();
+    
+    unsafe {
+        let mut count: libc::ssize_t;
+
+        let fd = libc::open(b"words.txt\0".as_ptr() as _, libc::O_RDONLY);
+        
+        if fd < 0 {
+            panic!("Failed to open 'words.txt'.");
+        }
+        
+        loop {
+            vec.reserve(2048);
+            count = libc::read(fd, vec.as_mut_ptr().add(vec.len()) as _, vec.capacity() - vec.len());
+
+            if count < 0 {
+                panic!("Failed to read from 'words.txt'");
+            }
+
+            if count == 0 {
+                break;
+            }
+
+            vec.set_len(vec.len() + count as usize);
+        }
+    };
+
+    vec
         .split(|c| *c == b'\n')
         .enumerate()
         .map(|(i, s)| {

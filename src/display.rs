@@ -97,13 +97,13 @@ fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images
     let mut x = 30;
     let y = 30 + row * 64 + row * 10;
     let mut alphabet: &Image;
-    for i in 0..5 {
-        match word[i].1 {
-            game::Correctness::Correct => alphabet = &images.green_letters,
-            game::Correctness::Misplaced => alphabet = &images.yellow_letters,
-            game::Correctness::Incorrect => alphabet = &images.grey_letters,
+    for (letter, correctness) in word {
+        match correctness {
+            Correctness::Correct => alphabet = &images.green_letters,
+            Correctness::Misplaced => alphabet = &images.yellow_letters,
+            Correctness::Incorrect => alphabet = &images.grey_letters,
         }
-        draw_letter(word[i].0, x, y, img, alphabet);
+        draw_letter(letter, x, y, img, alphabet);
         x = x + 74;
     }
 }
