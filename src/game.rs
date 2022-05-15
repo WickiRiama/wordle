@@ -1,5 +1,5 @@
 /// A letter that the player can type.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 #[repr(u8)]
 pub enum Letter {
     A,
@@ -109,8 +109,22 @@ impl Game {
     ///
     /// A winning word will be choosen from the given word list.
     pub fn new(mut valid_words: Vec<[Letter; Self::WORD_SIZE]>) -> Self {
+        if valid_words.len() == 0 {
+            panic!("The input word list must contain at least one value.");
+        }
+
         valid_words.sort_unstable();
-        let winning_word = *valid_words.first().expect("No winning words");
+
+        let index = unsafe { libc::rand() as usize % valid_words.len() };
+        let winning_word = valid_words[index];
+
+        #[cfg(debug_assertions)]
+        {
+            println!(
+                "Winning Word: {:?}{:?}{:?}{:?}{:?}",
+                winning_word[0], winning_word[1], winning_word[2], winning_word[3], winning_word[4]
+            );
+        }
 
         Self {
             valid_words,

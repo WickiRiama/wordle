@@ -38,7 +38,7 @@ fn draw_square(size: u32, x: u32, y: u32, weight: u32, img: &Image) {
         for i in 0..=size - 1 - j * 2 {
             set_pixel(img, x + j + i, y + j, 0);
             set_pixel(img, x + j, y + i - j, 0);
-            set_pixel(img, x + j + i, y -j + size - 1, 0);
+            set_pixel(img, x + j + i, y - j + size - 1, 0);
             set_pixel(img, x - j + size - 1, y + j + i, 0);
         }
     }
@@ -96,13 +96,13 @@ fn draw_current(word: [Letter; 5], row: u32, cursor: usize, img: &Image, alphabe
 fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images: &Images) {
     let mut x = 30;
     let y = 30 + row * 64 + row * 10;
-	let mut alphabet: &Image;
+    let mut alphabet: &Image;
     for i in 0..5 {
-		match word[i].1 {
-			game::Correctness::Correct => alphabet = &images.green_letters,
-			game::Correctness::Misplaced => alphabet = &images.yellow_letters,
-			game::Correctness::Incorrect => alphabet = &images.grey_letters,
-		}
+        match word[i].1 {
+            game::Correctness::Correct => alphabet = &images.green_letters,
+            game::Correctness::Misplaced => alphabet = &images.yellow_letters,
+            game::Correctness::Incorrect => alphabet = &images.grey_letters,
+        }
         draw_letter(word[i].0, x, y, img, alphabet);
         x = x + 74;
     }
@@ -110,9 +110,9 @@ fn draw_previous(word: [(Letter, Correctness); 5], row: u32, img: &Image, images
 
 pub fn draw(game: &Game, output: &Image, images: &Images) {
     init_bg(output);
-	for i in 0..game.current_try{
-		draw_previous(game.previous_words[i], i as u32, output, images);
-	}
+    for i in 0..game.current_try {
+        draw_previous(game.previous_words[i], i as u32, output, images);
+    }
     draw_current(
         game.current_word,
         game.current_try as u32,

@@ -13,15 +13,15 @@ struct Inner {
 
 impl Drop for Inner {
     fn drop(&mut self) {
-        extern "C" {
-            fn free(ptr: *mut c_void);
-        }
-
         unsafe {
             // Safety:
             //  We are the only one able to access those resources.
             crate::raw::mlx_destroy_display(self.handle);
-            free(self.handle);
+
+            // Safety:
+            //  The `Mlx` handle is `malloc`d by MiniLibX itself. We have to
+            //  free it ourselves though.
+            libc::free(self.handle);
         }
     }
 }

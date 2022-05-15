@@ -51,7 +51,7 @@ fn create_dict() -> Vec<[Letter; 5]> {
 fn set_loop_hook(win: &Window, game: &Rc<RefCell<Game>>) {
     let canvas = win.mlx().create_image(WIDTH, HEIGHT).unwrap();
     let images = Images::load(win.mlx());
-    
+
     let game = game.clone();
     let win_clone = win.clone();
     win.mlx().hook_loop(move || {
@@ -115,6 +115,11 @@ fn main() {
     // Installs a custom panic hook so that error messages are properly displayed on
     // error.
     custom_panic::set_custom_panic_hook();
+
+    // Safety:
+    //  `srand` has no safety caveats and can be called with any seed value.
+    //  `time` can be called with `NULL`.
+    unsafe { libc::srand(libc::time(std::ptr::null_mut()) as u32) };
 
     let game = Rc::new(RefCell::new(Game::new(create_dict())));
 

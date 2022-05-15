@@ -4,3 +4,6 @@ version = "0.0.1"
 edition = "2021"
 build = "build.rs"
 authors = ["Nils Mathieu <nmathieu@student.42.fr>"]
+
+[dependencies]
+libc = "0.2"

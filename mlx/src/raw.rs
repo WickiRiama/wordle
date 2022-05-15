@@ -1,8 +1,11 @@
 //! This module exposes the functions and types defined in [`mlx.h`].
-//! 
+//!
 //! [`mlx.h`]: https://github.com/42Paris/minilibx-linux/blob/master/mlx.h
 
-use std::{ffi::c_void, os::raw::{c_int, c_char}};
+use std::{
+    ffi::c_void,
+    os::raw::{c_char, c_int},
+};
 
 /// The type returned by [`init`] and passed to every other function of MLX.
 pub type Mlx = *mut c_void;

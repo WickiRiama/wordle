@@ -9,3 +9,4 @@ members = ["mlx"]
 
 [dependencies]
 mlx = { path = "mlx" }
+libc = "0.2"
