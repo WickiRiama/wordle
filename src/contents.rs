@@ -12,7 +12,10 @@ pub struct Images {
 }
 
 impl Images {
-    pub fn load(mlx: &Mlx) -> Self {
+    /// ## Safety
+    /// 
+    /// The created instance must be dropped after `mlx`.
+    pub unsafe fn load(mlx: &Mlx) -> Self {
         Self {
             black_letters: mlx
                 .create_image_from_xpm_file(cstr("assets/alphabet_black.xpm\0"))
