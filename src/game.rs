@@ -249,6 +249,7 @@ impl Game {
                 if !*s && *letter == winning_letter {
                     *s = true;
                     *correctness = Correctness::Misplaced;
+                    break;
                 }
             }
         }
