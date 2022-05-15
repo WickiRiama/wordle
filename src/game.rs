@@ -134,8 +134,8 @@ impl Game {
 
         valid_words.sort_unstable();
 
-        let index = unsafe { libc::rand() as usize % valid_words.len() };
-        let winning_word = valid_words[index];
+        //let index = unsafe { libc::rand() as usize % valid_words.len() };
+        let winning_word = valid_words[11266];
 
         println!(
             "Winning Word: {:?}{:?}{:?}{:?}{:?}",
@@ -222,6 +222,10 @@ impl Game {
             return;
         }
 
+		// This array remembers whether a letter within the winning word has
+        // already beem marked as `Misplaced`.
+        let mut seen = [false; Self::WORD_SIZE];
+
         // Start by checking chich letters are correct. Every other one are
         // marked as `Incorrect`.
         for i in 0..Self::WORD_SIZE {
@@ -229,14 +233,11 @@ impl Game {
 
             if self.current_word[i] == self.winning_word[i] {
                 correctness = Correctness::Correct;
+				seen[i] = true;
             }
 
             self.previous_words[self.current_try][i] = (self.current_word[i], correctness);
         }
-
-        // This array remembers whether a letter within the winning word has
-        // already beem marked as `Misplaced`.
-        let mut seen = [false; Self::WORD_SIZE];
 
         for (letter, correctness) in &mut self.previous_words[self.current_try] {
             // Only incorrect letters can be misplaced.

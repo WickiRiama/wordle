@@ -2,8 +2,6 @@ use mlx::{Image, Mlx};
 
 use crate::cstr;
 
-const IMAGE_LOAD_ERROR: &str = "Failed to load an image";
-
 pub struct Images {
     pub black_letters: Image,
     pub green_letters: Image,
@@ -25,21 +23,21 @@ impl Images {
     pub unsafe fn load(mlx: &Mlx) -> Self {
         unsafe fn load_image(mlx: &Mlx, name: &str) -> Image {
             mlx.create_image_from_xpm_file(cstr(name))
-                .unwrap_or_else(|_| panic!("{}", IMAGE_LOAD_ERROR))
+                .unwrap_or_else(|_| panic!("Failed to load '{}'.", name))
         }
 
         Self {
-            black_letters: load_image(mlx, "assets/alphabet_black_grey_border.xpm\0"),
-            green_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
-            yellow_letters: load_image(mlx, "assets/alphabet_yellow_no_border.xpm\0"),
-            grey_letters: load_image(mlx, "assets/alphabet_grey_no_border.xpm\0"),
+            black_letters: load_image(mlx, "assets/alphabet_neutral.xpm\0"),
+            green_letters: load_image(mlx, "assets/alphabet_correct.xpm\0"),
+            yellow_letters: load_image(mlx, "assets/alphabet_misplaced.xpm\0"),
+            grey_letters: load_image(mlx, "assets/alphabet_incorrect.xpm\0"),
             won_final_screen: load_image(mlx, "assets/you_won.xpm\0"),
             lost_final_screen: load_image(mlx, "assets/you_lost.xpm\0"),
-            winning_letters: load_image(mlx, "assets/alphabet_green_no_border.xpm\0"),
-            black_letters_32: load_image(mlx, "assets/alphabet_black_grey_border_32.xpm\0"),
-            green_letters_32: load_image(mlx, "assets/alphabet_green_no_border_32.xpm\0"),
-            yellow_letters_32: load_image(mlx, "assets/alphabet_yellow_no_border_32.xpm\0"),
-            grey_letters_32: load_image(mlx, "assets/alphabet_grey_no_border_32.xpm\0"),
+            winning_letters: load_image(mlx, "assets/alphabet_correct.xpm\0"),
+            black_letters_32: load_image(mlx, "assets/alphabet_neutral_keyboard.xpm\0"),
+            green_letters_32: load_image(mlx, "assets/alphabet_correct_keyboard.xpm\0"),
+            yellow_letters_32: load_image(mlx, "assets/alphabet_misplaced_keyboard.xpm\0"),
+            grey_letters_32: load_image(mlx, "assets/alphabet_incorrect_keyboard.xpm\0"),
         }
     }
 }
