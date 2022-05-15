@@ -160,7 +160,7 @@ impl Game {
 
     /// Types a new letter for the current game.
     pub fn type_letter(&mut self, letter: Letter) {
-        if self.cursor == Self::WORD_SIZE {
+        if self.cursor == Self::WORD_SIZE || self.state != GameState::Playing {
             return;
         }
 
@@ -170,6 +170,10 @@ impl Game {
 
     /// Cancels the last typed letter.
     pub fn cancel_letter(&mut self) {
+        if self.state != GameState::Playing {
+            return;
+        }
+
         if self.cursor != 0 {
             self.cursor -= 1;
         }
@@ -198,6 +202,11 @@ impl Game {
 
                 self.cursor = 0;
                 self.current_try = 0;
+                self.state = GameState::Playing;
+
+                for state in &mut self.letters_state {
+                    *state = None;
+                }
 
                 return;
             }
@@ -243,11 +252,8 @@ impl Game {
             }
         }
 
-        // If the winning word is the current word, then the player won.
-        if self.winning_word == self.current_word {
-            self.state = GameState::Won;
-            return;
-        }
+        self.cursor = 0;
+
 
         for (letter, correctness) in self.previous_words[self.current_try] {
             if self.letters_state[letter as usize] < Some(correctness) {
@@ -256,12 +262,16 @@ impl Game {
         }
 
         self.current_try += 1;
+
+        // If the winning word is the current word, then the player won.
+        if self.winning_word == self.current_word {
+            self.state = GameState::Won;
+            return;
+        }
+
         if self.current_try == Self::MAX_TRIES {
             self.state = GameState::Lost;
             return;
         }
-
-        // The user did not find the word but they can try again!
-        self.cursor = 0;
     }
 }
